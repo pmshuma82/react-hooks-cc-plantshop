@@ -1,15 +1,34 @@
-import React from "react";
-import NewPlantForm from "./NewPlantForm";
-import PlantList from "./PlantList";
-import Search from "./Search";
+import React, { useState, useEffect } from 'react';
+import PlantList from './PlantList';
+import NewPlantForm from './NewPlantForm';
 
 function PlantPage() {
+  const [plants, setPlants] = useState([]);
+  
+  useEffect(() => {
+    fetch('http://localhost:6001/plants')
+      .then(response => response.json())
+      .then(data => setPlants(data));
+  }, []);
+
+  const handleAddPlant = (newPlant) => {
+    setPlants([...plants, newPlant]);
+  };
+
+  const handleSoldOut = (plantId) => {
+    setPlants(plants.map(plant => {
+      if (plant.id === plantId) {
+        return { ...plant, isSoldOut: true };
+      }
+      return plant;
+    }));
+  };
+
   return (
-    <main>
-      <NewPlantForm />
-      <Search />
-      <PlantList />
-    </main>
+    <div className="plant-page">
+      <NewPlantForm onAddPlant={handleAddPlant} />
+      <PlantList plants={plants} onSoldOut={handleSoldOut} />
+    </div>
   );
 }
 
